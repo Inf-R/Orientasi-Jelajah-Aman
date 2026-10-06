@@ -1,5 +1,4 @@
 // src/app/(tabs)/index.tsx
-import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Button, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,6 +15,8 @@ import { konversiTingkatAQI } from "../../services/weatherAdapter";
 import { ambilCuaca } from "../../services/weatherService";
 import { HasilGeocoding } from "../../types/geocoding";
 import { DataCuacaLengkap, DataKualitasUdara } from "../../types/weather";
+import { router } from "expo-router";
+
 
 export default function HalamanUtama() {
   const [teksCari, setTeksCari] = useState("");

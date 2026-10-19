@@ -1,56 +1,43 @@
-# Welcome to your Expo app 👋
+# Jelajah Aman
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplikasi cuaca dan kualitas udara berbasis React Native (Expo) untuk mata kuliah
+Pemrograman Berbasis Platform (INF2528), UIN K.H. Abdurrahman Wahid Pekalongan.
 
-## Get started
+## Fitur
 
-1. Install dependencies
+- Pencarian kota dengan debounce (Open-Meteo Geocoding API)
+- Cuaca dan kualitas udara (AQI, PM2.5, PM10) dari Open-Meteo
+- Lokasi saat ini dengan penanganan izin granted / denied / unavailable
+- Kota favorit tersimpan permanen (AsyncStorage)
+- Cache cuaca offline-first di SQLite dengan TTL 30 menit
+- Indikator status data (terbaru, tersimpan segar, offline usang)
+- Navigasi tab, halaman detail, dan modal (Expo Router)
 
-   ```bash
-   npm install
-   ```
+## Teknologi
 
-2. Start the app
+Expo, React Native, TypeScript, Expo Router, expo-location, expo-sqlite,
+AsyncStorage.
 
-   ```bash
-   npx expo start
-   ```
+## Menjalankan
 
-In the output, you'll find options to open the app in a
+    npm install
+    npx expo start
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Pindai QR code dengan Expo Go. Uji fitur SQLite dan mode offline di perangkat
+HP, bukan di browser.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Struktur Singkat
 
-## Get a fresh project
+- `src/app/` : halaman dan routing
+- `src/services/` : pemanggilan API, repository cache, lokasi
+- `src/db/` : pembukaan dan migrasi database SQLite
+- `src/types/` : definisi tipe data
+- `components/` : komponen UI
 
-When you're ready, run:
+## Status Data: Cache Segar, Cache Basi, dan First-Run Offline
 
-```bash
-npm run reset-project
-```
+(TULIS 3-4 KALIMAT DENGAN KATA-KATAMU SENDIRI DI SINI)
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Sumber Data
 
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Data cuaca disediakan oleh [Open-Meteo.com](https://open-meteo.com/).

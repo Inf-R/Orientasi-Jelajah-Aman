@@ -95,3 +95,9 @@ export async function hapusSemuaCache(): Promise<void> {
   const db = await ambilDatabase();
   await db.runAsync("DELETE FROM cache_cuaca");
 }
+
+  // BARU (UTS no. 3): hapus cache satu kota saja
+export async function hapusCacheKota(kunci: string): Promise<void> {
+  const db = await ambilDatabase();
+  await db.runAsync("DELETE FROM cache_cuaca WHERE kunci = ?", [kunci]);
+}

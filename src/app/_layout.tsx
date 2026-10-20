@@ -1,16 +1,33 @@
 // src/app/_layout.tsx (root layout)
-import { DarkTheme, DefaultTheme, ThemeProvider, Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { AnimatedSplashOverlay } from "@/components/animated-icon";
+import { TemaProvider, useTema } from "../context/TemaContext";
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function IsiLayout() {
+  const { skema, warna } = useTema();
+  const dasar = skema === "gelap" ? DarkTheme : DefaultTheme;
+
+  // Warna header dan tab bar ikut palet aplikasi
+  const temaNavigasi = {
+    ...dasar,
+    colors: {
+      ...dasar.colors,
+      background: warna.latar,
+      card: warna.kartu,
+      text: warna.teks,
+      border: warna.garis,
+      primary: warna.aksen,
+    },
+  };
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={temaNavigasi}>
+      <StatusBar style={skema === "gelap" ? "light" : "dark"} />
       <AnimatedSplashOverlay />
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -21,5 +38,13 @@ export default function RootLayout() {
         />
       </Stack>
     </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <TemaProvider>
+      <IsiLayout />
+    </TemaProvider>
   );
 }

@@ -1,9 +1,9 @@
 // src/app/(tabs)/riwayat.tsx
+import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { Button, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { spacing, typeScale } from "../../constants/styles";
 import { useTema } from "../../context/TemaContext";
 import { ambilSemuaFavorit, hapusFavorit } from "../../services/favoritStorage";
 import { ambilRiwayat, kosongkanRiwayat } from "../../services/riwayatPencarian";
@@ -45,56 +45,147 @@ export default function TabRiwayat() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: spacing.sedang, gap: spacing.besar }}>
-        <View style={{ gap: spacing.kecil }}>
-          <Text style={{ fontSize: typeScale.subjudul, fontWeight: "bold", color: warna.teks }}>
-            Pencarian Terakhir
-          </Text>
-          {riwayat.length === 0 && (
-            <Text style={{ color: warna.teksPelan }}>Belum ada riwayat pencarian</Text>
-          )}
-          {riwayat.map((nama) => (
-            <TouchableOpacity
-              key={nama}
-              style={{ paddingVertical: 10 }}
-              accessibilityRole="button"
-              accessibilityLabel={`Cari ulang ${nama}`}
-              onPress={() => bukaPencarian(nama)}
-            >
-              <Text style={{ color: warna.teks }}>{nama}</Text>
-            </TouchableOpacity>
-          ))}
-          {riwayat.length > 0 && (
-            <Button title="Hapus Semua Riwayat" color={warna.bahaya} onPress={konfirmasiKosongkan} />
-          )}
-        </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: warna.latar }}>
+      <ScrollView contentContainerStyle={{ padding: 16, gap: 20 }}>
+        {/* Bagian Riwayat Pencarian */}
+        <View style={{ gap: 10 }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+            <Text style={{ fontSize: 16, fontWeight: "700", color: warna.teks }}>
+              Pencarian Terakhir
+            </Text>
+            {riwayat.length > 0 && (
+              <TouchableOpacity
+                onPress={konfirmasiKosongkan}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
+              >
+                <Ionicons name="trash-outline" size={14} color={warna.bahaya} />
+                <Text style={{ fontSize: 12, fontWeight: "600", color: warna.bahaya }}>
+                  Hapus Semua
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
 
-        <View style={{ gap: spacing.kecil }}>
-          <Text style={{ fontSize: typeScale.subjudul, fontWeight: "bold", color: warna.teks }}>
-            Kota Favorit
-          </Text>
-          <Text style={{ color: warna.teksPelan }}>Tersimpan {daftarFavorit.length} kota</Text>
-          {daftarFavorit.length === 0 && (
-            <Text style={{ color: warna.teksPelan }}>Belum ada kota favorit</Text>
-          )}
-          {daftarFavorit.map((kota) => (
+          {riwayat.length === 0 ? (
             <View
-              key={kota.id}
               style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
+                padding: 18,
+                borderRadius: 12,
+                backgroundColor: warna.kartu,
+                borderWidth: 1,
+                borderColor: warna.garis,
                 alignItems: "center",
               }}
             >
-              <Text style={{ color: warna.teks }}>{kota.nama}</Text>
-              <Button
-                title="Hapus"
-                accessibilityLabel={`Hapus ${kota.nama} dari favorit`}
-                onPress={() => konfirmasiHapusFavorit(kota)}
-              />
+              <Text style={{ color: warna.teksPelan, fontSize: 13 }}>Belum ada riwayat pencarian</Text>
             </View>
-          ))}
+          ) : (
+            <View
+              style={{
+                borderRadius: 12,
+                backgroundColor: warna.kartu,
+                borderWidth: 1,
+                borderColor: warna.garis,
+                overflow: "hidden",
+              }}
+            >
+              {riwayat.map((nama, idx) => (
+                <TouchableOpacity
+                  key={nama}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    paddingHorizontal: 16,
+                    paddingVertical: 13,
+                    borderBottomWidth: idx < riwayat.length - 1 ? 1 : 0,
+                    borderBottomColor: warna.garis,
+                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Cari ulang ${nama}`}
+                  onPress={() => bukaPencarian(nama)}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                    <Ionicons name="time-outline" size={17} color={warna.teksPelan} />
+                    <Text style={{ color: warna.teks, fontSize: 14 }}>{nama}</Text>
+                  </View>
+                  <Ionicons name="arrow-forward" size={15} color={warna.teksPelan} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* Bagian Kota Favorit */}
+        <View style={{ gap: 10 }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+            <Text style={{ fontSize: 16, fontWeight: "700", color: warna.teks }}>
+              Kota Favorit
+            </Text>
+            <Text style={{ fontSize: 12, color: warna.teksPelan }}>
+              {daftarFavorit.length} kota tersimpan
+            </Text>
+          </View>
+
+          {daftarFavorit.length === 0 ? (
+            <View
+              style={{
+                padding: 18,
+                borderRadius: 12,
+                backgroundColor: warna.kartu,
+                borderWidth: 1,
+                borderColor: warna.garis,
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: warna.teksPelan, fontSize: 13 }}>Belum ada kota favorit</Text>
+            </View>
+          ) : (
+            <View
+              style={{
+                borderRadius: 12,
+                backgroundColor: warna.kartu,
+                borderWidth: 1,
+                borderColor: warna.garis,
+                overflow: "hidden",
+              }}
+            >
+              {daftarFavorit.map((kota, idx) => (
+                <View
+                  key={kota.id}
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    paddingHorizontal: 16,
+                    paddingVertical: 12,
+                    borderBottomWidth: idx < daftarFavorit.length - 1 ? 1 : 0,
+                    borderBottomColor: warna.garis,
+                  }}
+                >
+                  <TouchableOpacity
+                    style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 10 }}
+                    onPress={() => bukaPencarian(kota.nama)}
+                  >
+                    <Ionicons name="star" size={17} color="#FBBF24" />
+                    <Text style={{ color: warna.teks, fontSize: 14, fontWeight: "500" }}>
+                      {kota.nama}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => konfirmasiHapusFavorit(kota)}
+                    accessibilityLabel={`Hapus ${kota.nama} dari favorit`}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    style={{ padding: 4 }}
+                  >
+                    <Ionicons name="trash-outline" size={17} color={warna.bahaya} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>

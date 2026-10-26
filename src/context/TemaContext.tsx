@@ -14,6 +14,7 @@ interface NilaiTema {
   skema: SkemaAktif; // hasil akhir yang sedang dipakai
   warna: PaletWarna;
   ubahMode: (mode: ModeTema) => void;
+  toggleTema: () => void;
 }
 
 const TemaContext = createContext<NilaiTema | null>(null);
@@ -39,9 +40,25 @@ export function TemaProvider({ children }: { children: ReactNode }) {
   const skema: SkemaAktif =
     mode === "sistem" ? (skemaSistem === "dark" ? "gelap" : "terang") : mode;
 
+  const toggleTema = useCallback(() => {
+    setMode((prev) => {
+      const skemaSekarang =
+        prev === "sistem" ? (skemaSistem === "dark" ? "gelap" : "terang") : prev;
+      const target: ModeTema = skemaSekarang === "gelap" ? "terang" : "gelap";
+      AsyncStorage.setItem(KUNCI_PENYIMPANAN, target).catch(() => {});
+      return target;
+    });
+  }, [skemaSistem]);
+
   const nilai = useMemo<NilaiTema>(
-    () => ({ mode, skema, warna: skema === "gelap" ? paletGelap : paletTerang, ubahMode }),
-    [mode, skema, ubahMode]
+    () => ({
+      mode,
+      skema,
+      warna: skema === "gelap" ? paletGelap : paletTerang,
+      ubahMode,
+      toggleTema,
+    }),
+    [mode, skema, ubahMode, toggleTema]
   );
 
   return <TemaContext.Provider value={nilai}>{children}</TemaContext.Provider>;

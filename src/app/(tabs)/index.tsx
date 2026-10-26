@@ -1,7 +1,14 @@
 // src/app/(tabs)/index.tsx
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Button, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AtribusiCuaca from "../../../components/AtribusiCuaca";
 import SearchBox from "../../../components/SearchBox";
@@ -61,7 +68,7 @@ export default function HalamanUtama() {
       });
   }, []);
 
-  // Segarkan daftar favorit setiap kali layar ini difokuskan (misalnya setelah modal ditutup)
+  // Segarkan daftar favorit setiap kali layar ini difokuskan
   useFocusEffect(
     useCallback(() => {
       ambilSemuaFavorit()
@@ -126,7 +133,7 @@ export default function HalamanUtama() {
         { id: kota.id, nama: kota.name, latitude: kota.latitude, longitude: kota.longitude },
         { paksaPerbarui }
       );
-      if (idSaatIni !== requestIdRef.current) return; // hasil basi, abaikan
+      if (idSaatIni !== requestIdRef.current) return;
       setHasil(data);
       muatKotaTersimpan();
     } catch {
@@ -150,11 +157,11 @@ export default function HalamanUtama() {
     try {
       const status = await mintaIzinLokasi();
       if (status === "denied") {
-        setPesanLokasi("Izin lokasi ditolak. Silakan cari kota secara manual di atas.");
+        setPesanLokasi("Izin lokasi ditolak. Silakan cari kota secara manual.");
         return;
       }
       if (status === "unavailable") {
-        setPesanLokasi("Layanan lokasi tidak aktif di perangkat ini. Silakan cari kota secara manual.");
+        setPesanLokasi("Layanan lokasi tidak aktif di perangkat ini.");
         return;
       }
       setPesanLokasi(null);
@@ -167,7 +174,7 @@ export default function HalamanUtama() {
         country: "",
       });
     } catch {
-      setPesanLokasi("Gagal mendapatkan lokasi. Silakan cari kota secara manual di atas.");
+      setPesanLokasi("Gagal mendapatkan lokasi. Silakan cari kota secara manual.");
     }
   }
 
@@ -181,7 +188,7 @@ export default function HalamanUtama() {
         try {
           await hapusCacheKota(kota.kunci);
         } catch {
-          // abaikan: daftar dimuat ulang di bawah
+          // abaikan
         }
         muatKotaTersimpan();
       }
@@ -189,124 +196,345 @@ export default function HalamanUtama() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: warna.latar }}>
       <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 16 }}
+        contentContainerStyle={{ padding: 16, gap: 14 }}
         keyboardShouldPersistTaps="handled"
       >
-        <SearchBox nilai={teksCari} onCari={setTeksCari} />
-        <Button title="Gunakan Lokasi Saat Ini" onPress={gunakanLokasiSaatIni} />
+        {/* Baris Pencarian Terpadu & Tombol Lokasi */}
+        <SearchBox
+          nilai={teksCari}
+          onCari={setTeksCari}
+          onLokasi={gunakanLokasiSaatIni}
+        />
+
+        {/* Pesan Status Lokasi */}
         {pesanLokasi && (
-          <Text accessibilityLabel={pesanLokasi} style={{ color: warna.teks }}>
-            {pesanLokasi}
-          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 10,
+              backgroundColor: warna.infoBasiLatar,
+              borderWidth: 1,
+              borderColor: warna.infoBasiTeks + "30",
+              gap: 8,
+            }}
+          >
+            <Ionicons name="information-circle-outline" size={16} color={warna.infoBasiTeks} />
+            <Text accessibilityLabel={pesanLokasi} style={{ color: warna.infoBasiTeks, fontSize: 13, flex: 1 }}>
+              {pesanLokasi}
+            </Text>
+          </View>
         )}
 
-        {hasilPencarian.map((kota) => (
-          <TouchableOpacity
-            key={kota.id}
-            style={{ paddingVertical: 8 }}
-            onPress={() => pilihDariPencarian(kota)}
+        {/* Dropdown Hasil Pencarian */}
+        {hasilPencarian.length > 0 && (
+          <View
+            style={{
+              backgroundColor: warna.kartu,
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: warna.garis,
+              overflow: "hidden",
+            }}
           >
-            <Text style={{ color: warna.teks }}>
-              {kota.name}
-              {kota.admin1 ? `, ${kota.admin1}` : ""}
-            </Text>
-          </TouchableOpacity>
-        ))}
-
-        {kotaTersimpan.length > 0 && (
-          <View style={{ gap: 4 }}>
-            <Text style={{ fontWeight: "bold", color: warna.teks }}>
-              Tersimpan di perangkat (bisa dibuka offline)
-            </Text>
-            {kotaTersimpan.map((k) => (
-              <View
-                key={k.kunci}
+            {hasilPencarian.map((kota, index) => (
+              <TouchableOpacity
+                key={kota.id}
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  gap: 8,
+                  paddingHorizontal: 14,
+                  paddingVertical: 12,
+                  borderBottomWidth: index < hasilPencarian.length - 1 ? 1 : 0,
+                  borderBottomColor: warna.garis,
                 }}
+                onPress={() => pilihDariPencarian(kota)}
               >
-                <TouchableOpacity
-                  style={{ flex: 1, paddingVertical: 10 }}
-                  onPress={() =>
-                    pilihKota({
-                      id: k.id,
-                      name: k.nama,
-                      latitude: k.latitude,
-                      longitude: k.longitude,
-                      country: "",
-                    })
-                  }
-                >
-                  <Text style={{ color: warna.teks }}>{k.nama}</Text>
-                </TouchableOpacity>
-                <Button
-                  title="Hapus Cache"
-                  color={warna.bahaya}
-                  accessibilityLabel={`Hapus data tersimpan ${k.nama}`}
-                  onPress={() => konfirmasiHapusCache(k)}
-                />
-              </View>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 10, flex: 1 }}>
+                  <Ionicons name="location-outline" size={17} color={warna.aksen} />
+                  <Text style={{ color: warna.teks, fontSize: 14 }}>
+                    {kota.name}
+                    {kota.admin1 ? `, ${kota.admin1}` : ""}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={warna.teksPelan} />
+              </TouchableOpacity>
             ))}
           </View>
         )}
 
-        {sedangMemuat && <ActivityIndicator color={warna.aksen} />}
-
-        {pesanError && (
+        {/* Chip Kota Tersimpan di Perangkat (Offline Pills) */}
+        {kotaTersimpan.length > 0 && (
           <View style={{ gap: 8 }}>
-            <Text accessibilityLabel={pesanError} style={{ color: warna.teks }}>
-              {pesanError}
-            </Text>
-            <Button
-              title="Coba Lagi"
-              onPress={() => kotaTerpilih && pilihKota(kotaTerpilih, true)}
-            />
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+              <Text style={{ fontSize: 12, fontWeight: "600", color: warna.teksPelan, letterSpacing: 0.2 }}>
+                TERSIMPAN DI PERANGKAT (OFFLINE)
+              </Text>
+              <Text style={{ fontSize: 11, color: warna.teksPelan }}>
+                {kotaTersimpan.length} kota
+              </Text>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 8 }}
+            >
+              {kotaTersimpan.map((k) => {
+                const aktif = kotaTerpilih?.name === k.nama;
+                return (
+                  <View
+                    key={k.kunci}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      backgroundColor: aktif ? warna.aksen + "1A" : warna.kartu,
+                      borderWidth: 1,
+                      borderColor: aktif ? warna.aksen : warna.garis,
+                      borderRadius: 20,
+                      paddingLeft: 12,
+                      paddingRight: 8,
+                      paddingVertical: 6,
+                      gap: 6,
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() =>
+                        pilihKota({
+                          id: k.id,
+                          name: k.nama,
+                          latitude: k.latitude,
+                          longitude: k.longitude,
+                          country: "",
+                        })
+                      }
+                    >
+                      <Text
+                        style={{
+                          color: aktif ? warna.aksen : warna.teks,
+                          fontSize: 13,
+                          fontWeight: aktif ? "600" : "400",
+                        }}
+                      >
+                        {k.nama}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => konfirmasiHapusCache(k)}
+                      accessibilityLabel={`Hapus data tersimpan ${k.nama}`}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Ionicons
+                        name="close-circle"
+                        size={16}
+                        color={aktif ? warna.aksen : warna.teksPelan}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
+            </ScrollView>
           </View>
         )}
 
+        {/* Loading Indicator */}
+        {sedangMemuat && (
+          <View style={{ paddingVertical: 20, alignItems: "center" }}>
+            <ActivityIndicator size="large" color={warna.aksen} />
+          </View>
+        )}
+
+        {/* Pesan Error */}
+        {pesanError && (
+          <View
+            style={{
+              padding: 14,
+              borderRadius: 12,
+              backgroundColor: warna.kartu,
+              borderWidth: 1,
+              borderColor: warna.bahaya + "40",
+              gap: 10,
+            }}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <Ionicons name="alert-circle-outline" size={20} color={warna.bahaya} />
+              <Text style={{ fontWeight: "600", color: warna.bahaya, fontSize: 14 }}>
+                Gagal Memuat Data
+              </Text>
+            </View>
+            <Text accessibilityLabel={pesanError} style={{ color: warna.teks, fontSize: 13 }}>
+              {pesanError}
+            </Text>
+            <TouchableOpacity
+              onPress={() => kotaTerpilih && pilihKota(kotaTerpilih, true)}
+              style={{
+                alignSelf: "flex-start",
+                paddingHorizontal: 14,
+                paddingVertical: 6,
+                borderRadius: 8,
+                backgroundColor: warna.aksen,
+              }}
+            >
+              <Text style={{ color: "#FFFFFF", fontWeight: "600", fontSize: 13 }}>Coba Lagi</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Tampilan Cuaca Lengkap & Terpadu */}
         {hasil && kotaTerpilih && !sedangMemuat && (
-          <>
+          <View style={{ gap: 12 }}>
+            {/* Status Kesegaran Data */}
             <StatusData sumber={hasil.sumber} disimpanPada={hasil.disimpanPada} />
+
+            {/* Kartu Cuaca Utama */}
             <WeatherCard
               kota={kotaTerpilih.name}
               suhu={hasil.cuaca.saatIni.suhu}
               tingkatAQI={konversiTingkatAQI(hasil.kualitasUdara.indeksAQI)}
               indeksAQI={hasil.kualitasUdara.indeksAQI}
+              kondisi={labelKodeCuaca(hasil.cuaca.saatIni.kodeCuaca)}
+              suhuMaks={hasil.cuaca.harian.suhuMaksimal[0]}
+              suhuMin={hasil.cuaca.harian.suhuMinimal[0]}
             />
-            <Text style={{ fontSize: 12, color: warna.teksPelan }}>
-              Kondisi: {labelKodeCuaca(hasil.cuaca.saatIni.kodeCuaca)} {"\u2022"} Angin{" "}
-              {hasil.cuaca.saatIni.kecepatanAngin} km/j
-            </Text>
-            <Text style={{ fontSize: 12, color: warna.teks }}>
-              Maks: {hasil.cuaca.harian.suhuMaksimal[0]}°C {"\u2022"} Min:{" "}
-              {hasil.cuaca.harian.suhuMinimal[0]}°C
-            </Text>
-            <Text style={{ fontSize: 12, color: warna.teksPelan }}>
-              PM2.5: {hasil.kualitasUdara.pm25} {"\u2022"} PM10: {hasil.kualitasUdara.pm10}
-            </Text>
-            <Button title="Perbarui Sekarang" onPress={() => pilihKota(kotaTerpilih, true)} />
-            {!idFavorit.includes(kotaTerpilih.id) && (
-              <Button
-                title="Tambahkan ke Favorit"
-                onPress={() =>
-                  router.push({
-                    pathname: "/tambah-favorit",
-                    params: {
-                      id: String(kotaTerpilih.id),
-                      nama: kotaTerpilih.name,
-                      lat: String(kotaTerpilih.latitude),
-                      lon: String(kotaTerpilih.longitude),
-                    },
-                  })
-                }
-              />
-            )}
-          </>
+
+            {/* 2 Kolom Metrik Ringkas: Angin & Polusi */}
+            <View style={{ flexDirection: "row", gap: 12 }}>
+              {/* Box 1: Kecepatan Angin */}
+              <View
+                style={{
+                  flex: 1,
+                  padding: 14,
+                  borderRadius: 14,
+                  backgroundColor: warna.kartu,
+                  borderWidth: 1,
+                  borderColor: warna.garis,
+                  gap: 6,
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                  <MaterialCommunityIcons name="weather-windy-variant" size={18} color={warna.aksen} />
+                  <Text style={{ fontSize: 12, color: warna.teksPelan, fontWeight: "500" }}>
+                    Kecepatan Angin
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 18, fontWeight: "700", color: warna.teks }}>
+                  {hasil.cuaca.saatIni.kecepatanAngin}{" "}
+                  <Text style={{ fontSize: 12, fontWeight: "400", color: warna.teksPelan }}>km/j</Text>
+                </Text>
+              </View>
+
+              {/* Box 2: Partikel Polusi */}
+              <View
+                style={{
+                  flex: 1,
+                  padding: 14,
+                  borderRadius: 14,
+                  backgroundColor: warna.kartu,
+                  borderWidth: 1,
+                  borderColor: warna.garis,
+                  gap: 6,
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                  <Ionicons
+                    name="leaf-outline"
+                    size={16}
+                    color={warna.aqi[konversiTingkatAQI(hasil.kualitasUdara.indeksAQI)]}
+                  />
+                  <Text style={{ fontSize: 12, color: warna.teksPelan, fontWeight: "500" }}>
+                    Partikel Polusi
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 13, color: warna.teks, fontWeight: "600" }}>
+                  PM2.5: {hasil.kualitasUdara.pm25}
+                </Text>
+                <Text style={{ fontSize: 12, color: warna.teksPelan }}>
+                  PM10: {hasil.kualitasUdara.pm10}
+                </Text>
+              </View>
+            </View>
+
+            {/* Tombol Aksi Bersih: Perbarui & Simpan Favorit */}
+            <View style={{ flexDirection: "row", gap: 10, marginTop: 4 }}>
+              <TouchableOpacity
+                onPress={() => pilihKota(kotaTerpilih, true)}
+                activeOpacity={0.7}
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 42,
+                  borderRadius: 10,
+                  backgroundColor: warna.kartu,
+                  borderWidth: 1,
+                  borderColor: warna.garis,
+                  gap: 6,
+                }}
+              >
+                <Ionicons name="refresh-outline" size={17} color={warna.aksen} />
+                <Text style={{ fontSize: 13, fontWeight: "600", color: warna.aksen }}>
+                  Perbarui
+                </Text>
+              </TouchableOpacity>
+
+              {!idFavorit.includes(kotaTerpilih.id) ? (
+                <TouchableOpacity
+                  onPress={() =>
+                    router.push({
+                      pathname: "/tambah-favorit",
+                      params: {
+                        id: String(kotaTerpilih.id),
+                        nama: kotaTerpilih.name,
+                        lat: String(kotaTerpilih.latitude),
+                        lon: String(kotaTerpilih.longitude),
+                      },
+                    })
+                  }
+                  activeOpacity={0.7}
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: 42,
+                    borderRadius: 10,
+                    backgroundColor: warna.aksen,
+                    gap: 6,
+                  }}
+                >
+                  <Ionicons name="bookmark-outline" size={17} color="#FFFFFF" />
+                  <Text style={{ fontSize: 13, fontWeight: "600", color: "#FFFFFF" }}>
+                    Simpan Favorit
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: 42,
+                    borderRadius: 10,
+                    backgroundColor: warna.kartu,
+                    borderWidth: 1,
+                    borderColor: warna.garis,
+                    gap: 6,
+                  }}
+                >
+                  <Ionicons name="checkmark-circle" size={17} color={warna.aqi.BAIK} />
+                  <Text style={{ fontSize: 13, fontWeight: "500", color: warna.teksPelan }}>
+                    Tersimpan Favorit
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
         )}
 
         <AtribusiCuaca />

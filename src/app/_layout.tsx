@@ -4,6 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
+import TombolTema from "../../components/TombolTema";
 import { TemaProvider, useTema } from "../context/TemaContext";
 
 SplashScreen.preventAutoHideAsync();
@@ -29,7 +30,7 @@ function IsiLayout() {
     <ThemeProvider value={temaNavigasi}>
       <StatusBar style={skema === "gelap" ? "light" : "dark"} />
       <AnimatedSplashOverlay />
-      <Stack>
+      <Stack screenOptions={{ headerRight: () => <TombolTema /> }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="detail/[kota]" options={{ title: "Detail Cuaca" }} />
         <Stack.Screen

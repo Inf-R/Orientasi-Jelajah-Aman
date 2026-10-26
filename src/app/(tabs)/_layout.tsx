@@ -2,6 +2,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { ComponentProps } from "react";
+import TombolTema from "../../../components/TombolTema";
 import { useTema } from "../../context/TemaContext";
 
 type NamaIkon = ComponentProps<typeof Ionicons>["name"];
@@ -26,6 +27,7 @@ export default function TabLayout() {
         headerShown: true,
         tabBarActiveTintColor: warna.aksen,
         tabBarInactiveTintColor: warna.teksPelan,
+        headerRight: () => <TombolTema />,
       }}
     >
       <Tabs.Screen

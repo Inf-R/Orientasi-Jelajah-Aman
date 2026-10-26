@@ -1,7 +1,8 @@
 // components/StatusData.tsx
+import { Ionicons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
-import { SumberData } from "../src/types/cache";
 import { useTema } from "../src/context/TemaContext";
+import { SumberData } from "../src/types/cache";
 
 interface StatusDataProps {
   sumber: SumberData;
@@ -18,9 +19,9 @@ function formatUmur(disimpanPada: number): string {
 }
 
 function labelSumber(sumber: SumberData): string {
-  if (sumber === "jaringan") return "Data terbaru dari internet";
+  if (sumber === "jaringan") return "Data langsung dari internet";
   if (sumber === "cache-segar") return "Data tersimpan (masih segar)";
-  return "Mode offline - data tersimpan mungkin sudah usang";
+  return "Mode offline - data tersimpan mungkin usang";
 }
 
 export default function StatusData({ sumber, disimpanPada }: StatusDataProps) {
@@ -28,18 +29,44 @@ export default function StatusData({ sumber, disimpanPada }: StatusDataProps) {
   const basi = sumber === "cache-basi";
   const label = labelSumber(sumber);
   const umur = formatUmur(disimpanPada);
+
   return (
     <View
       accessible
       accessibilityLabel={label + ", diperbarui " + umur}
       style={{
-        padding: 8,
-        borderRadius: 8,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingHorizontal: 12,
+        paddingVertical: 7,
+        borderRadius: 10,
         backgroundColor: basi ? warna.infoBasiLatar : warna.infoBaikLatar,
+        borderWidth: 1,
+        borderColor: basi ? warna.infoBasiTeks + "25" : warna.infoBaikTeks + "25",
+        gap: 8,
       }}
     >
-      <Text style={{ fontSize: 12, color: basi ? warna.infoBasiTeks : warna.infoBaikTeks }}>{label}</Text>
-      <Text style={{ fontSize: 11, color: warna.teksPelan }}>Diperbarui {umur}</Text>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 6, flex: 1 }}>
+        <Ionicons
+          name={sumber === "jaringan" ? "cloud-done-outline" : "cloud-offline-outline"}
+          size={15}
+          color={basi ? warna.infoBasiTeks : warna.infoBaikTeks}
+        />
+        <Text
+          numberOfLines={1}
+          style={{
+            fontSize: 12,
+            fontWeight: "500",
+            color: basi ? warna.infoBasiTeks : warna.infoBaikTeks,
+          }}
+        >
+          {label}
+        </Text>
+      </View>
+      <Text style={{ fontSize: 11, color: warna.teksPelan }}>
+        {umur}
+      </Text>
     </View>
   );
 }
